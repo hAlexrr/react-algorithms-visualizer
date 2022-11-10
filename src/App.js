@@ -1,23 +1,19 @@
 import logo from './logo.svg';
 import './App.css';
+import {useState} from 'react';
 
 function App() {
+  // Random generated array of numbers to sort
+  const [array, setArray] = useState(Array.from({length: 10}, () => Math.floor(Math.random() * 100)));
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+        <div id="chart-visualize" className=''>
+          {array.map((value, idx) => (
+            <div className="bg-blue-500" key={idx} style={{height: `${value}px`}}>
+              {value}
+            </div>
+          ))}
+        </div>
     </div>
   );
 }
