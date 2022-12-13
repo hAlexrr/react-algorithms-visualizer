@@ -1,6 +1,5 @@
-import logo from './logo.svg';
 import './App.css';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 
 function App() {
 
@@ -16,8 +15,13 @@ function App() {
   const [isSorted, setIsSorted] = useState(false)
   const [sortName, setSortName] = useState('')
 
+  console.log('Page Refreshed')
+
+
   const barSelectColor = 'bg-blue-800'
   const barRegularColor = 'bg-blue-500'
+  const pivotColor = 'bg-red-500'
+  const memoryColor = 'bg-yellow-500'
 
   const resetStats = () => {
     setNumberOfSwaps(0)
@@ -147,7 +151,7 @@ function App() {
 
     let start = new Date().getTime()
 
-    for(let i = 0; i < copyArray.length; i++) {
+    for(let i = 0; i < copyArray.length; i++) { 
 
       if(copyArray.length/2 - i + 1 === 0) {
         break;
@@ -219,6 +223,72 @@ function App() {
     document.getElementById('generateArr').click()
   }
 
+  const quickSort = async(e) => {
+
+    resetStats()
+    setIsSorting(true)
+    setSortName('Quick Sort')
+
+    let start = new Date().getTime()
+    await quickSortHelper(array, 0, array.length-1)
+    setTimeToExecute((new Date().getTime() - start)/1000 + 'Seconds')
+    checkIfSorted()
+    setIsSorting(false)
+  }
+
+  const partition = async(array, start, end) => {
+
+    let pivot = array[end]
+
+    const pivotBar = document.getElementsByName('array'+end.toString())[0]
+    setBarColor(pivotBar, pivotBar, barRegularColor, pivotColor)
+
+    let i = start - 1
+
+    for(let j = start; j < end; j++) {
+      const compareBar = document.getElementsByName('array'+j.toString())[0]
+      setBarColor(compareBar, compareBar, barRegularColor, barSelectColor)
+      const memoryBar = document.getElementsByName('array'+(i+1).toString())[0]
+      setBarColor(memoryBar, memoryBar, barRegularColor, memoryColor)
+
+      if(array[j] < pivot) {
+        i++
+        let temp = array[i]
+        array[i] = array[j]
+        array[j] = temp
+
+        setArray(array.map(value => value))
+        setNumberOfSwaps(prevNumberOfSwaps => prevNumberOfSwaps + 1)
+      }
+
+      if(delay !== 0) {
+        await timer(delay)
+      }
+
+      setBarColor(compareBar, compareBar, barSelectColor, barRegularColor)
+      setBarColor(memoryBar, memoryBar, memoryColor, barRegularColor)
+    }
+
+    let temp = array[i+1]
+    array[i+1] = array[end]
+    array[end] = temp
+
+    setBarColor(pivotBar, pivotBar, pivotColor, barRegularColor)
+
+    return i+1
+  }
+
+  const quickSortHelper = async(array, start, end) => {
+    if(start < end) {
+      let pivot = await partition(array, start, end)
+      
+      await quickSortHelper(array, start, pivot-1)
+      await quickSortHelper(array, pivot+1, end)
+    } 
+
+    setArray(array)
+  }
+
   const generateArray = () => setArray(Array.from({length: arraySize}, () => Math.floor(Math.random() * 500)))
 
   return (
@@ -231,7 +301,7 @@ function App() {
           <button className="disabled:bg-transparent bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-2" disabled={isSorting ? true : false} id='generateArr' onClick={generateArray}>Generate New Array</button>
           <button className="disabled:bg-transparent bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-2" disabled={isSorting ? true : false} onClick={bubbleSort}>Bubble Sort</button>
           <button className="disabled:bg-transparent bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-2" disabled={isSorting ? true : false}>Merge Sort</button>
-          <button className="disabled:bg-transparent bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-2" disabled={isSorting ? true : false}>Quick Sort</button>
+          <button className="disabled:bg-transparent bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-2" disabled={isSorting ? true : false} onClick={quickSort}>Quick Sort</button>
           <button className="disabled:bg-transparent bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-2" disabled={isSorting ? true : false}>Heap Sort</button>
           <button className="disabled:bg-transparent bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-2" disabled={isSorting ? true : false}>Insertion Sort</button>
           <button className="disabled:bg-transparent bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-2" disabled={isSorting ? true : false}>Selection Sort</button>
